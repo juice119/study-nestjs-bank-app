@@ -1,10 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 export class ClientSignUpResponse {
+  @Exclude()
   private _id: number;
+  @Exclude()
   private _name: string;
+  @Exclude()
   private _description?: string;
+  @Exclude()
   private _createdAt: Date;
 
   constructor(id: number, name: string, description: string, createdAt: Date) {
