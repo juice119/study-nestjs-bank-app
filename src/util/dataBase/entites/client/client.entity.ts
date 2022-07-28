@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Account } from '../account/Account.entity';
 
 @Entity()
 export class Client {
@@ -17,4 +18,7 @@ export class Client {
     type: 'timestamp with time zone',
   })
   createdAt: Date;
+
+  @ManyToOne(() => Account, (account) => account.client)
+  accounts: Account[];
 }
