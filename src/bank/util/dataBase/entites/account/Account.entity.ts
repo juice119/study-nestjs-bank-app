@@ -1,5 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Client } from '../client/client.entity';
+import { AccountStatement } from '../AccountStatement/AccountStatement.entity';
 
 @Entity()
 export class Account {
@@ -11,4 +18,10 @@ export class Account {
 
   @ManyToOne(() => Client, (client) => client.accounts)
   client: Client[];
+
+  @OneToMany(
+    () => AccountStatement,
+    (accountStatement) => accountStatement.account,
+  )
+  accountStatements: AccountStatement[];
 }
