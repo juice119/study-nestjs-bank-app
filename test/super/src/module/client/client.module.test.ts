@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { ClientModule } from '../../../../../src/module/client/client.module';
-import { ClientSignUpRequest } from '../../../../../src/module/client/dto/clientSignUpRequest';
+import { ClientModule } from '../../../../../src/bank/module/client/client.module';
+import { ClientSignUpRequest } from '../../../../../src/bank/module/client/dto/clientSignUpRequest';
 import * as request from 'supertest';
-import { resetMainAppSetting } from '../../../../../src/resetMainAppSetting';
-import { ClientSignUpResponse } from '../../../../../src/module/client/dto/ClientSignUpResponse';
+import { resetMainAppSetting } from '../../../../../src/bank/resetMainAppSetting';
+import { ClientSignUpResponse } from '../../../../../src/bank/module/client/dto/ClientSignUpResponse';
 
 describe('Client Module Super Test', () => {
   let app: INestApplication;
