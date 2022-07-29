@@ -1,12 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Account } from '../account/Account.entity';
 import { IsEmail } from 'class-validator';
+import { BaseTable } from '../../BaseEntities/BaseTable/BaseTable';
 
 @Entity()
-export class Client {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Client extends BaseTable {
   @Column({ length: 50, nullable: false })
   // TODO 한/영 1~25자 제한 클래스 밸리데이터 추가하기
   name: string;
@@ -20,11 +18,6 @@ export class Client {
   })
   description: string;
 
-  @Column({
-    type: 'timestamp with time zone',
-  })
-  createdAt: Date;
-
-  @ManyToOne(() => Account, (account) => account.client)
+  @OneToMany(() => Account, (account) => account.client)
   accounts: Account[];
 }

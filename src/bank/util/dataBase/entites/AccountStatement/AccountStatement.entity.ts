@@ -1,21 +1,18 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Account } from '../account/Account.entity';
+import { BaseTable } from '../../BaseEntities/BaseTable/BaseTable';
 
 @Entity()
-export class AccountStatement {
+export class AccountStatement extends BaseTable {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ length: 100, nullable: false })
   type: string;
 
-  @Column({
-    type: 'timestamp with time zone',
-    default: () => 'CURRENT_TIMESTAMP',
+  @ManyToOne(() => Account, (account) => account.accountStatements, {
+    createForeignKeyConstraints: false,
     nullable: false,
   })
-  createdAt: Date;
-
-  @ManyToOne(() => Account, (account) => account.accountStatements)
   account: Account;
 }

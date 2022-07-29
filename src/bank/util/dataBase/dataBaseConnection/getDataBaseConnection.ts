@@ -11,6 +11,7 @@ export function getDataBaseConnection() {
     database: 'test',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     synchronize: true,
+    dropSchema: true,
     namingStrategy: new SnakeNamingStrategy(),
   });
 }
