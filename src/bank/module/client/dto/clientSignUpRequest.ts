@@ -1,13 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail } from 'class-validator';
 
 export class ClientSignUpRequest {
   @ApiProperty()
   name: string;
-  @ApiProperty({ nullable: true })
-  description?: string;
+  @ApiProperty()
+  @IsEmail()
+  email: string;
 
-  constructor(name: string, description?: string) {
+  constructor(name: string, email: string) {
     this.name = name;
-    this.description = description;
+    this.email = email;
   }
 }

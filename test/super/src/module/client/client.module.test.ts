@@ -43,7 +43,7 @@ describe('Client Module Super Test', () => {
 
       // then
       expect(clientSignUpResponse.name).toBe(userName);
-      expect(clientSignUpResponse.description).toBe(description);
+      expect(clientSignUpResponse.email).toBe(description);
     });
   });
 });

@@ -27,4 +27,16 @@ describe('DateTimeUtil', () => {
     expect(toDate.getMonth() + 1).toBe(localDateTime.monthValue());
     expect(toDate.getDate()).toBe(localDateTime.dayOfMonth());
   });
+
+  it('localDate -> string', () => {
+    // given
+    const localDateTime = LocalDateTime.of(2016, 2, 29, 12, 55, 42, 200);
+    const dateString = '2016-02-29 12:55:42 +09:00';
+
+    // when
+    const result = DateTimeUtil.toString(localDateTime);
+
+    // then
+    expect(result).toBe(dateString);
+  });
 });

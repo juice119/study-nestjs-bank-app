@@ -1,4 +1,11 @@
-import { convert, LocalDateTime, nativeJs } from '@js-joda/core';
+import {
+  convert,
+  DateTimeFormatter,
+  LocalDateTime,
+  nativeJs,
+  ZonedDateTime,
+  ZoneId,
+} from '@js-joda/core';
 
 export class DateTimeUtil {
   static toLocalDateTime(date?: Date) {
@@ -13,5 +20,15 @@ export class DateTimeUtil {
       return null;
     }
     return convert(localDateTime).toDate();
+  }
+
+  static toString(localDateTime?: LocalDateTime): string {
+    if (!localDateTime) {
+      return '';
+    }
+
+    return ZonedDateTime.ofLocal(localDateTime, ZoneId.systemDefault()).format(
+      DateTimeFormatter.ofPattern('yyyy-MM-dd hh:mm:ss XXX'),
+    );
   }
 }

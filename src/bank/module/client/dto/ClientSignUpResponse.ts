@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
+import { LocalDateTime } from '@js-joda/core';
+import { DateTimeUtil } from '../../../util/DateTime/DateTimeUtil';
 
 export class ClientSignUpResponse {
   @Exclude()
@@ -7,14 +9,19 @@ export class ClientSignUpResponse {
   @Exclude()
   private _name: string;
   @Exclude()
-  private _description?: string;
+  private _email: string;
   @Exclude()
-  private _createdAt: Date;
+  private _createdAt: LocalDateTime;
 
-  constructor(id: number, name: string, description: string, createdAt: Date) {
+  constructor(
+    id: number,
+    name: string,
+    email: string,
+    createdAt: LocalDateTime,
+  ) {
     this._id = id;
     this._name = name;
-    this._description = description;
+    this._email = email;
     this._createdAt = createdAt;
   }
 
@@ -32,13 +39,13 @@ export class ClientSignUpResponse {
 
   @ApiProperty()
   @Expose()
-  get description(): string {
-    return this._description || '';
+  get email(): string {
+    return this._email || '';
   }
 
   @ApiProperty()
   @Expose()
   get createdAt(): string {
-    return this._createdAt.getMilliseconds().toString();
+    return DateTimeUtil.toString(this._createdAt);
   }
 }
