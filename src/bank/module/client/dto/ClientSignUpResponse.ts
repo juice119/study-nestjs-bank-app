@@ -25,6 +25,15 @@ export class ClientSignUpResponse {
     this._createdAt = createdAt;
   }
 
+  static byObject(object) {
+    return new ClientSignUpResponse(
+      object.id,
+      object.name,
+      object.email,
+      object.createdAt,
+    );
+  }
+
   @ApiProperty()
   @Expose()
   get id(): number {

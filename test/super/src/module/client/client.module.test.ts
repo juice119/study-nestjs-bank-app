@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ClientModule } from '../../../../../src/bank/module/client/client.module';
 import { ClientSignUpRequest } from '../../../../../src/bank/module/client/dto/clientSignUpRequest';
 import * as request from 'supertest';
@@ -21,29 +21,36 @@ describe('Client Module Super Test', () => {
 
   describe('(POST) /client/signup 회원가입', () => {
     const url = '/client/signup';
-    it('신규 유저 회원 가입', async () => {
+    it('고객은 이름, 이메일 입력하여 등록할 수 있다', async () => {
       //given
       const userName = '후추';
-      const description = '회사원';
-      const clientSignUpRequest = new ClientSignUpRequest(
-        userName,
-        description,
-      );
+      const email = 'peper@test-bank.com';
+      const clientSignUpRequest = new ClientSignUpRequest(userName, email);
 
       // when
-      const { body } = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post(url)
         .send(clientSignUpRequest);
-      const clientSignUpResponse = new ClientSignUpResponse(
-        body.id,
-        body.name,
-        body.description,
-        body.createdAt,
-      );
-
+      const clientSignUpResponse = ClientSignUpResponse.byObject(response.body);
       // then
       expect(clientSignUpResponse.name).toBe(userName);
-      expect(clientSignUpResponse.email).toBe(description);
+      expect(clientSignUpResponse.email).toBe(email);
+    });
+
+    describe('validation 검사', () => {
+      it('이름은  1 ~ 25 글자 까지, 한/영만 사용이 가능하다', async () => {
+        //given
+        const userName = '후추';
+        const email = 'peper@test-bank.com';
+        const clientSignUpRequest = new ClientSignUpRequest(userName, email);
+
+        // when
+        const response = await request(app.getHttpServer())
+          .post(url)
+          .send(clientSignUpRequest);
+
+        expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+      });
     });
   });
 });
