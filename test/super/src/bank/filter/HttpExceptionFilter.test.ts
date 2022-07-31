@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NestApplication } from '@nestjs/core';
 import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
-import { BankAppHttpException } from '../../../../../../src/bank/util/exception/BankAppHttpException';
+import { BankAppHttpException } from '../../../../../src/bank/exception/BankAppHttpException';
 import * as request from 'supertest';
-import { HttpExceptionFilterResponse } from '../../../../../../src/bank/util/filter/dto/HttpExceptionFilterResponse';
-import { HttpExceptionFilter } from '../../../../../../src/bank/util/filter/HttpExceptionFilter';
+import { HttpExceptionFilterResponse } from '../../../../../src/bank/filter/dto/HttpExceptionFilterResponse';
+import { HttpExceptionFilter } from '../../../../../src/bank/filter/HttpExceptionFilter';
 
 describe('HttpExceptionFilter Test', () => {
   let app: NestApplication;
