@@ -60,7 +60,6 @@ describe('HttpExceptionFilter Test', () => {
   it('HttpException 예외처리', async () => {
     // when
     const response = await request(app.getHttpServer()).get('/Default');
-    console.log(response.body);
   });
 });
 

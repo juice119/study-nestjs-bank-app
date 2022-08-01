@@ -8,10 +8,26 @@ export class BankAppResponse {
   timestamp: string;
   data: object;
 
-  constructor(statusCode: HttpStatus, message: string, data: object) {
+  constructor(
+    statusCode: HttpStatus,
+    message: string,
+    data: object,
+    timestamp?: string,
+  ) {
     this.statusCode = statusCode;
     this.message = message;
     this.data = data || {};
-    this.timestamp = DateTimeUtil.toString(LocalDateTime.now());
+    this.timestamp = timestamp
+      ? timestamp
+      : DateTimeUtil.toString(LocalDateTime.now());
+  }
+
+  static byObject(object) {
+    return new BankAppResponse(
+      object.statusCode,
+      object.message,
+      object.data,
+      object.timestamp,
+    );
   }
 }

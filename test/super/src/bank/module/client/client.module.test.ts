@@ -5,6 +5,7 @@ import { ClientSignUpRequest } from '../../../../../../src/bank/module/client/dt
 import * as request from 'supertest';
 import { resetMainAppSetting } from '../../../../../../src/bank/resetMainAppSetting';
 import { ClientSignUpResponse } from '../../../../../../src/bank/module/client/dto/ClientSignUpResponse';
+import { BankAppResponse } from '../../../../../../src/bank/common-dto/BankAppResponse';
 
 describe('Client Module Super Test', () => {
   let app: INestApplication;
@@ -38,9 +39,9 @@ describe('Client Module Super Test', () => {
     });
 
     describe('validation 검사', () => {
-      it('이름은  1 ~ 25 글자 까지, 한/영만 사용이 가능하다', async () => {
+      it('이름은  1 글자 이상을 입력해야한다.', async () => {
         //given
-        const userName = '후추';
+        const userName = '  ';
         const email = 'peper@test-bank.com';
         const clientSignUpRequest = new ClientSignUpRequest(userName, email);
 
@@ -48,8 +49,12 @@ describe('Client Module Super Test', () => {
         const response = await request(app.getHttpServer())
           .post(url)
           .send(clientSignUpRequest);
+        const bankAppResponse = BankAppResponse.byObject(response.body);
 
+        // then
         expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(bankAppResponse.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(bankAppResponse.message).toBe('adasw');
       });
     });
   });

@@ -7,6 +7,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Reflector } from '@nestjs/core';
 import { HttpExceptionFilter } from './filter/HttpExceptionFilter';
 import { BankAppResponseInterceptor } from './interceptor/BankAppResponseInterceptor';
+import { ValidationError } from 'class-validator';
+import { ValidationException } from './exception/ValidationException';
 
 export function resetMainAppSetting(app: INestApplication) {
   // 1.interceptors
@@ -14,7 +16,12 @@ export function resetMainAppSetting(app: INestApplication) {
   app.useGlobalInterceptors(new BankAppResponseInterceptor());
 
   // 2.pipes
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (errors: ValidationError[]) =>
+        ValidationException.byValidationPipeError(errors),
+    }),
+  );
 
   // 3.route, then
   app.useGlobalFilters(new HttpExceptionFilter());
