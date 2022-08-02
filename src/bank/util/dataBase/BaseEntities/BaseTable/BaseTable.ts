@@ -9,7 +9,7 @@ export class BaseTable {
   @Column({
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP',
-    nullable: false,
+    nullable: true,
     transformer: {
       from: (dbReadValue: Date) => DateTimeUtil.toLocalDateTime(dbReadValue),
       to: (ormValue: LocalDateTime) => DateTimeUtil.toDate(ormValue),
@@ -20,7 +20,7 @@ export class BaseTable {
   @Column({
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP',
-    nullable: false,
+    nullable: true,
     transformer: {
       from: (dbReadValue: Date) => DateTimeUtil.toLocalDateTime(dbReadValue),
       to: (ormValue: LocalDateTime) => DateTimeUtil.toDate(ormValue),

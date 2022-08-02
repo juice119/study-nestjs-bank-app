@@ -6,18 +6,28 @@ import * as request from 'supertest';
 import { resetMainAppSetting } from '../../../../../../src/bank/resetMainAppSetting';
 import { ClientSignUpResponse } from '../../../../../../src/bank/module/client/dto/ClientSignUpResponse';
 import { BankAppResponse } from '../../../../../../src/bank/common-dto/BankAppResponse';
+import { getDataBaseConnection } from '../../../../../../src/bank/util/dataBase/dataBaseConnection/getDataBaseConnection';
+import { Repository } from 'typeorm';
+import { Client } from '../../../../../../src/bank/util/dataBase/entites/client/client.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('Client Module Super Test', () => {
   let app: INestApplication;
+  let clientRepository: Repository<Client>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [ClientModule],
+      imports: [ClientModule, getDataBaseConnection()],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     resetMainAppSetting(app);
+    clientRepository = moduleFixture.get(getRepositoryToken(Client));
     await app.init();
+  });
+
+  beforeEach(() => {
+    clientRepository.clear();
   });
 
   describe('(POST) /client/signup 회원가입', () => {
@@ -32,10 +42,18 @@ describe('Client Module Super Test', () => {
       const response = await request(app.getHttpServer())
         .post(url)
         .send(clientSignUpRequest);
-      const clientSignUpResponse = ClientSignUpResponse.byObject(response.body);
+      const clientSignUpResponse = ClientSignUpResponse.byObject(
+        response.body.data,
+      );
+      const insertClient = await clientRepository.findOne({
+        where: { id: clientSignUpResponse.id },
+      });
+
       // then
       expect(clientSignUpResponse.name).toBe(userName);
       expect(clientSignUpResponse.email).toBe(email);
+      expect(insertClient.name).toBe(userName);
+      expect(insertClient.email).toBe(email.toLowerCase());
     });
 
     describe('validation 검사', () => {

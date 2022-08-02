@@ -13,5 +13,7 @@ export function getDataBaseConnection() {
     synchronize: true,
     dropSchema: true,
     namingStrategy: new SnakeNamingStrategy(),
+    autoLoadEntities: true,
+    logging: true,
   });
 }
