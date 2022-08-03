@@ -2,6 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
+type keys = keyof ClientSignUpRequest;
+
 export class ClientSignUpRequest {
   @ApiProperty()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
@@ -11,6 +13,7 @@ export class ClientSignUpRequest {
   name: string;
 
   @ApiProperty()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsEmail(
     {},
     {

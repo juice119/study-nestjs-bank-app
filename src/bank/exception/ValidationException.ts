@@ -1,27 +1,18 @@
-import { BankAppHttpException } from './BankAppHttpException';
-import { HttpStatus } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
+import { HttpStatus } from '@nestjs/common';
+import { BankAppHttpException } from './BankAppHttpException';
 
 export class ValidationException extends BankAppHttpException {
-  constructor(httpStatus: HttpStatus, errorMessage: string, data: object) {
-    super(httpStatus, errorMessage, data);
-  }
+  validationErrors: ValidationError[];
 
-  static byValidationPipeError(validationErrors: ValidationError[]) {
-    const data = {};
+  static ERROR_MESSAGE = '입력값에 문제가 있습니다';
 
-    validationErrors.forEach((validationError) => {
-      data[validationError.property] = {};
-      data[validationError.property].constraintsMessage = Object.values(
-        validationError.constraints,
-      );
-      data[validationError.property].value = validationError.value;
-    });
-
-    return new ValidationException(
+  constructor(validationErrors: ValidationError[]) {
+    super(
       HttpStatus.BAD_REQUEST,
-      '입력 값에 문제가 있습니다',
-      data,
+      ValidationException.ERROR_MESSAGE,
+      validationErrors,
     );
+    this.validationErrors = validationErrors;
   }
 }

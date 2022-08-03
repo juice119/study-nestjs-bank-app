@@ -6,7 +6,7 @@ export class BankAppResponse {
   statusCode: HttpStatus;
   message: string;
   timestamp: string;
-  data: object;
+  data: any;
 
   constructor(
     statusCode: HttpStatus,

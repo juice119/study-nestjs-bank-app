@@ -19,7 +19,7 @@ export function resetMainAppSetting(app: INestApplication) {
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory: (errors: ValidationError[]) =>
-        ValidationException.byValidationPipeError(errors),
+        new ValidationException(errors),
     }),
   );
 
