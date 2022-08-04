@@ -6,4 +6,4 @@ import { Account } from './Account.entity';
   imports: [TypeOrmModule],
   exports: [TypeOrmModule.forFeature([Account])],
 })
-export class AccountModule {}
+export class AccountsModule {}
