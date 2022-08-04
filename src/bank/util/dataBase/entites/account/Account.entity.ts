@@ -20,4 +20,19 @@ export class Account extends BaseTable {
     { createForeignKeyConstraints: false, nullable: false },
   )
   accountStatements: AccountStatement[];
+
+  private constructor(
+    purposeDescription,
+    client: Client,
+    accountStatements?: AccountStatement[],
+  ) {
+    super();
+    this.purposeDescription = purposeDescription;
+    this.client = client;
+    this.accountStatements = accountStatements;
+  }
+
+  static create(purposeDescription, client: Client) {
+    return new Account(purposeDescription, client);
+  }
 }
