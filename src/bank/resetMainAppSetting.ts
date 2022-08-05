@@ -6,9 +6,9 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Reflector } from '@nestjs/core';
 import { HttpExceptionFilter } from './filter/HttpExceptionFilter';
-import { BankAppResponseInterceptor } from './interceptor/BankAppResponseInterceptor';
 import { ValidationError } from 'class-validator';
 import { ValidationException } from './exception/ValidationException';
+import { BankAppResponseInterceptor } from './interceptor/BankAppResponseInterceptor';
 
 export function resetMainAppSetting(app: INestApplication) {
   // 1.interceptors
