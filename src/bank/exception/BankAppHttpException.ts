@@ -9,4 +9,8 @@ export class BankAppHttpException extends HttpException {
       this.data = data;
     }
   }
+
+  static toSystemError() {
+    return new BankAppHttpException(500, '시스템에 문제가 발생하였습니다.');
+  }
 }

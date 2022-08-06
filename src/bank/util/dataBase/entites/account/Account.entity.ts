@@ -21,6 +21,8 @@ export class Account extends BaseTable {
   )
   accountStatements: AccountStatement[];
 
+  totalMount: number;
+
   private constructor(
     purposeDescription,
     client: Client,
@@ -34,5 +36,9 @@ export class Account extends BaseTable {
 
   static create(purposeDescription, client: Client) {
     return new Account(purposeDescription, client);
+  }
+
+  notDepositOrWithDraw(depositOrWithDrawMoney: number) {
+    return this.totalMount + depositOrWithDrawMoney < 0;
   }
 }

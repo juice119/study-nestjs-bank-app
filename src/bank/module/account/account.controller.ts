@@ -1,4 +1,11 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpException,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccountService } from './account.service';
 import { AccountCreateRequest } from './dto/AccountCreateRequest';
@@ -6,6 +13,7 @@ import { AccountCreateResponse } from './dto/AccountCreateResponse';
 import { AccountDepositWithDrawParamsRequest } from './dto/AccountDepositWithDrawParamsRequest';
 import { AccountDepositWithDrawResponse } from './dto/AccountDepositWithDrawResponse';
 import { AccountDepositBodyRequest } from './dto/AccountDepositBodyRequest';
+import { BankAppHttpException } from '../../exception/BankAppHttpException';
 
 @ApiTags('account')
 @Controller('/account')
@@ -25,14 +33,17 @@ export class AccountController {
   @ApiResponse({
     type: AccountDepositWithDrawResponse,
   })
-  deposit(
+  async deposit(
     @Param() paramsRequest: AccountDepositWithDrawParamsRequest,
     @Body() depositRequest: AccountDepositBodyRequest,
   ) {
-    return new AccountDepositWithDrawResponse(
-      paramsRequest.accountId,
-      depositRequest.depositMoney,
-      depositRequest.depositMoney,
-    );
+    try {
+      return this.accountService.deposit(paramsRequest, depositRequest);
+    } catch (e: any | HttpException | BankAppHttpException) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+      throw BankAppHttpException.toSystemError();
+    }
   }
 }
