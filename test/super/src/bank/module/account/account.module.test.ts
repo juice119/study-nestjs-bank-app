@@ -12,6 +12,8 @@ import * as request from 'supertest';
 import { AccountCreateResponse } from '../../../../../../src/bank/module/account/dto/AccountCreateResponse';
 import { HttpStatus } from '@nestjs/common';
 import { BankAppResponse } from '../../../../../../src/bank/common-dto/BankAppResponse';
+import { AccountDepositBodyRequest } from '../../../../../../src/bank/module/account/dto/AccountDepositBodyRequest';
+import { AccountDepositWithDrawResponse } from '../../../../../../src/bank/module/account/dto/AccountDepositWithDrawResponse';
 
 describe('계좌 API SUPER 테스트', () => {
   let app;
@@ -36,6 +38,12 @@ describe('계좌 API SUPER 테스트', () => {
 
     await accountRepository.clear();
     await app.init();
+  });
+
+  beforeEach(async () => {
+    await clientRepository.clear();
+    await accountRepository.clear();
+    await accountStatementRepository.clear();
   });
 
   describe('[POST][account/create] 계좌 만들기 API', () => {
@@ -94,6 +102,53 @@ describe('계좌 API SUPER 테스트', () => {
       // then
       expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
       expect(bankAppResponse.message).toBe('사용자가 존재하지 않습니다');
+    });
+  });
+
+  describe('[PATCH][:accountId/deposit] 계좌에 금액을 입금할 수 있다.', () => {
+    beforeEach(async () => {
+      await clientRepository.clear();
+      await accountRepository.clear();
+      await accountStatementRepository.clear();
+    });
+
+    it('입금 할 수 있다.', async () => {
+      // given
+      const client = await clientRepository.save(
+        Client.toSignup('tester', 'test@test.com'),
+      );
+      const givenAccount = await accountRepository.save(
+        Account.create('테스트', client),
+      );
+      const nowAccountMount = 1000;
+      await accountStatementRepository.save(
+        AccountStatement.toDeposit(nowAccountMount, givenAccount),
+      );
+      const accountId = givenAccount.id;
+      const depositMoney = 10_000;
+
+      // when
+      const response = await request(app.getHttpServer())
+        .patch(`/account/${accountId}/deposit`)
+        .send(new AccountDepositBodyRequest(depositMoney));
+      const accountDepositResponse = AccountDepositWithDrawResponse.byObject(
+        response.body.data,
+      );
+
+      // then
+      expect(response.statusCode).toBe(HttpStatus.OK);
+      expect(accountDepositResponse.accountId).toBe(accountId);
+      expect(accountDepositResponse.depositMoney).toBe(depositMoney);
+      expect(accountDepositResponse.accountMount).toBe(
+        depositMoney + nowAccountMount,
+      );
+
+      const { totalMoney } = await accountStatementRepository
+        .createQueryBuilder()
+        .select('SUM(AccountStatement.money)', 'totalMoney')
+        .where('account_id=:accountId', { accountId: accountId })
+        .getRawOne<{ totalMoney: string }>();
+      expect(parseInt(totalMoney)).toEqual(depositMoney + nowAccountMount);
     });
   });
 });

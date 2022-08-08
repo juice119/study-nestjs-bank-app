@@ -12,6 +12,14 @@ export class AccountDepositWithDrawResponse {
     this._depositMoney = depositMoney;
   }
 
+  static byObject(object) {
+    return new AccountDepositWithDrawResponse(
+      object.accountId,
+      object.accountMount,
+      object.depositMoney,
+    );
+  }
+
   @Expose()
   @ApiProperty()
   get accountId(): number {

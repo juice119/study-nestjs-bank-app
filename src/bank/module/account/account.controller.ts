@@ -29,7 +29,7 @@ export class AccountController {
     return AccountCreateResponse.byAccount(account);
   }
 
-  @Patch(':accountId/deposit')
+  @Patch('/:accountId/deposit')
   @ApiResponse({
     type: AccountDepositWithDrawResponse,
   })
