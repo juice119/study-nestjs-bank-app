@@ -10,6 +10,7 @@ import { AccountDepositWithDrawParamsRequest } from './dto/AccountDepositWithDra
 import { AccountReadRepository } from './accountReadRepository';
 import { AccountStatement } from '../../util/dataBase/entites/AccountStatement/AccountStatement.entity';
 import { AccountDepositWithDrawResponse } from './dto/AccountDepositWithDrawResponse';
+import { AccountWithDrawResponse } from './dto/AccountWithdrawResponse';
 
 @Injectable()
 export class AccountService {
@@ -72,6 +73,38 @@ export class AccountService {
       account.totalMount,
       accountStatement.money,
     );
+  }
+
+  async withdraw(accountId: number, withdrawMoney: number) {
+    const account = await this.getAccount(
+      accountId,
+      '출금 계좌를 찾을수 없습니다.',
+    );
+    await this.resetAccountTotalAmount(account);
+    if (account.notDepositOrWithDraw(withdrawMoney)) {
+      throw BankAppHttpException.toForbidden('계좌 잔액이 부족합니다');
+    }
+
+    const accountStatement = await this.accountStatementRepository.save(
+      AccountStatement.toWithdraw(withdrawMoney, account),
+    );
+    await this.resetAccountTotalAmount(account);
+
+    return new AccountWithDrawResponse(
+      account.id,
+      account.totalMount,
+      accountStatement.money,
+    );
+  }
+
+  private async getAccount(accountId: number, errorMessage) {
+    const account = await this.accountRepository.findOne({
+      where: { id: accountId },
+    });
+    if (!account) {
+      throw BankAppHttpException.toForbidden(errorMessage);
+    }
+    return account;
   }
 
   private async resetAccountTotalAmount(account: Account) {

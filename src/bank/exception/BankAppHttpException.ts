@@ -13,4 +13,8 @@ export class BankAppHttpException extends HttpException {
   static toSystemError() {
     return new BankAppHttpException(500, '시스템에 문제가 발생하였습니다.');
   }
+
+  static toForbidden(message, data?) {
+    return new BankAppHttpException(HttpStatus.FORBIDDEN, message, data);
+  }
 }

@@ -14,6 +14,8 @@ import { AccountDepositWithDrawParamsRequest } from './dto/AccountDepositWithDra
 import { AccountDepositWithDrawResponse } from './dto/AccountDepositWithDrawResponse';
 import { AccountDepositBodyRequest } from './dto/AccountDepositBodyRequest';
 import { BankAppHttpException } from '../../exception/BankAppHttpException';
+import { AccountWithdrawBodyRequest } from './dto/AccountWithdrawBodyRequest';
+import { AccountWithDrawResponse } from './dto/AccountWithdrawResponse';
 
 @ApiTags('account')
 @Controller('/account')
@@ -44,6 +46,23 @@ export class AccountController {
         throw e;
       }
       throw BankAppHttpException.toSystemError();
+    }
+  }
+
+  @Patch('/:accountId/withdraw')
+  @ApiResponse({ type: AccountWithDrawResponse })
+  async withdraw(
+    @Param() paraRequest: AccountDepositWithDrawParamsRequest,
+    @Body() bodyRequest: AccountWithdrawBodyRequest,
+  ) {
+    try {
+      return this.accountService.withdraw(
+        paraRequest.accountId,
+        bodyRequest.withdrawMoney,
+      );
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
   }
 }

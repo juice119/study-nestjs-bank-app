@@ -21,7 +21,7 @@ export class AccountStatement extends BaseTable {
   account: Account;
 
   static toDeposit(depositMoney: number, account: Account) {
-    if (depositMoney < 0) {
+    if (depositMoney <= 0) {
       throw new Error(
         `1원 미만에 금액을 입금 할 수 없습니다. 입금 금액(${depositMoney})`,
       );
@@ -31,6 +31,17 @@ export class AccountStatement extends BaseTable {
     accountStatement.account = account;
     accountStatement.type = AccountStatementType.DEPOSIT;
 
+    return accountStatement;
+  }
+
+  static toWithdraw(withdrawMoney: number, account: Account) {
+    if (withdrawMoney >= 0) {
+      throw new Error(`출금 금액에 문제가 있습니다`);
+    }
+    const accountStatement = new AccountStatement();
+    accountStatement.money = withdrawMoney;
+    accountStatement.type = AccountStatementType.WITHDRAW;
+    accountStatement.account = account;
     return accountStatement;
   }
 }

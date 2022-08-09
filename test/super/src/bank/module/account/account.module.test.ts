@@ -14,6 +14,8 @@ import { HttpStatus } from '@nestjs/common';
 import { BankAppResponse } from '../../../../../../src/bank/common-dto/BankAppResponse';
 import { AccountDepositBodyRequest } from '../../../../../../src/bank/module/account/dto/AccountDepositBodyRequest';
 import { AccountDepositWithDrawResponse } from '../../../../../../src/bank/module/account/dto/AccountDepositWithDrawResponse';
+import { AccountWithdrawBodyRequest } from '../../../../../../src/bank/module/account/dto/AccountWithdrawBodyRequest';
+import { AccountWithDrawResponse } from '../../../../../../src/bank/module/account/dto/AccountWithdrawResponse';
 
 describe('계좌 API SUPER 테스트', () => {
   let app;
@@ -150,5 +152,47 @@ describe('계좌 API SUPER 테스트', () => {
         .getRawOne<{ totalMoney: string }>();
       expect(parseInt(totalMoney)).toEqual(depositMoney + nowAccountMount);
     });
+  });
+
+  describe('[PATCH][:accountId/withdraw] 계좌에 금액을 출금 할 수 있다.', () => {
+    it('출금 할 수 있다.', async () => {
+      // given
+      const withdrawMoney = -3000;
+      const nowAccountMount = 10000;
+      const client = await clientRepository.save(
+        Client.toSignup('tester', 'test@test.com'),
+      );
+      const account = await accountRepository.save(
+        Account.create('테스트', client),
+      );
+      await accountStatementRepository.save(
+        AccountStatement.toDeposit(nowAccountMount, account),
+      );
+
+      // when
+      const response = await request(app.getHttpServer())
+        .patch(`/account/${account.id}/withdraw`)
+        .send(new AccountWithdrawBodyRequest(withdrawMoney));
+      const accountWithDrawResponse = AccountWithDrawResponse.byObject(
+        response.body.data,
+      );
+
+      // then
+      expect(response.statusCode).toBe(HttpStatus.OK);
+      expect(accountWithDrawResponse.accountMount).toBe(
+        nowAccountMount + withdrawMoney,
+      );
+      const { totalMount } = await accountStatementRepository
+        .createQueryBuilder()
+        .select('SUM(AccountStatement.money)', 'totalMount')
+        .where('AccountStatement.account_id = :accountId', {
+          accountId: account.id,
+        })
+        .getRawOne<{ totalMount: string }>();
+      expect(parseInt(totalMount)).toBe(nowAccountMount + withdrawMoney);
+    });
+    it.todo('출금 계좌가 존재하지 않는 에러 발생');
+    it.todo('출금 금액이 부족한 경우 에러 발생');
+    it.todo('최소 1000원 단위로 떨어져야 한다.');
   });
 });
