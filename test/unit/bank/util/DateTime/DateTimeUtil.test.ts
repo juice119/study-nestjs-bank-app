@@ -1,4 +1,4 @@
-import { DateTimeUtil } from './DateTimeUtil';
+import { DateTimeUtil } from '../../../../../src/bank/util/DateTime/DateTimeUtil';
 import { LocalDateTime } from '@js-joda/core';
 
 describe('DateTimeUtil', () => {
