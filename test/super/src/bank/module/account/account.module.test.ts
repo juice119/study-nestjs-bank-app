@@ -240,6 +240,28 @@ describe('계좌 API SUPER 테스트', () => {
       expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
       expect(bankAppResponse.message).toBe('계좌 잔액이 부족합니다');
     });
-    it.todo('최소 1000원 단위로 떨어져야 한다.');
+    it('최소 1000원 단위로 떨어져야 한다.', async () => {
+      // given
+      const withdrawMoney = -300;
+      const accountId = 1;
+
+      // when
+      const response = await request(app.getHttpServer())
+        .patch(`/account/${accountId}/withdraw`)
+        .send(new AccountWithdrawBodyRequest(withdrawMoney));
+      const bankAppResponse = BankAppResponse.byObject(response.body);
+
+      // then
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+      expect(bankAppResponse.data.validationErrors).toContainEqual(
+        expect.objectContaining({
+          property: 'withdrawMoney',
+          constraints: {
+            ValidateWithDrawMoneyConstraint:
+              '출금 금액은 1000원 단위로 할 수 있습니다.',
+          },
+        }),
+      );
+    });
   });
 });
