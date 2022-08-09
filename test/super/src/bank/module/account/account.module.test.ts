@@ -38,7 +38,9 @@ describe('계좌 API SUPER 테스트', () => {
       getRepositoryToken(AccountStatement),
     );
 
+    await clientRepository.clear();
     await accountRepository.clear();
+    await accountStatementRepository.clear();
     await app.init();
   });
 
@@ -155,6 +157,12 @@ describe('계좌 API SUPER 테스트', () => {
   });
 
   describe('[PATCH][:accountId/withdraw] 계좌에 금액을 출금 할 수 있다.', () => {
+    beforeEach(async () => {
+      await clientRepository.clear();
+      await accountRepository.clear();
+      await accountStatementRepository.clear();
+    });
+
     it('출금 할 수 있다.', async () => {
       // given
       const withdrawMoney = -3000;
@@ -191,8 +199,47 @@ describe('계좌 API SUPER 테스트', () => {
         .getRawOne<{ totalMount: string }>();
       expect(parseInt(totalMount)).toBe(nowAccountMount + withdrawMoney);
     });
-    it.todo('출금 계좌가 존재하지 않는 에러 발생');
-    it.todo('출금 금액이 부족한 경우 에러 발생');
+
+    it('출금 계좌가 존재하지 않는 에러 발생', async () => {
+      // given
+      const withdrawMoney = -3000;
+      const notDefinedAccountId = 12345678;
+
+      // when
+      const response = await request(app.getHttpServer())
+        .patch(`/account/${notDefinedAccountId}/withdraw`)
+        .send(new AccountWithdrawBodyRequest(withdrawMoney));
+      const bankAppResponse = BankAppResponse.byObject(response.body);
+
+      // then
+      expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+      expect(bankAppResponse.message).toBe('출금 계좌를 찾을수 없습니다.');
+    });
+
+    it('출금 금액이 부족한 경우 에러 발생', async () => {
+      // given
+      const withdrawMoney = -3000;
+      const nowAccountMount = 1000;
+      const client = await clientRepository.save(
+        Client.toSignup('tester', 'test@test.com'),
+      );
+      const account = await accountRepository.save(
+        Account.create('테스트', client),
+      );
+      await accountStatementRepository.save(
+        AccountStatement.toDeposit(nowAccountMount, account),
+      );
+
+      // when
+      const response = await request(app.getHttpServer())
+        .patch(`/account/${account.id}/withdraw`)
+        .send(new AccountWithdrawBodyRequest(withdrawMoney));
+      const bankAppResponse = BankAppResponse.byObject(response.body);
+
+      // then
+      expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+      expect(bankAppResponse.message).toBe('계좌 잔액이 부족합니다');
+    });
     it.todo('최소 1000원 단위로 떨어져야 한다.');
   });
 });

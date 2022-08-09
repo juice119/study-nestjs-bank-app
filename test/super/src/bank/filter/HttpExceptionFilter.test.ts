@@ -25,7 +25,6 @@ describe('HttpExceptionFilter Test', () => {
     const httpExceptionFilterResponse = new HttpExceptionFilterResponse(
       response.body.statusCode,
       response.body.message,
-      response.body.timestamp,
       response.body.data,
     );
 
@@ -44,7 +43,6 @@ describe('HttpExceptionFilter Test', () => {
     const httpExceptionFilterResponse = new HttpExceptionFilterResponse(
       response.body.statusCode,
       response.body.message,
-      response.body.timestamp,
       response.body.data,
     );
 
