@@ -1,16 +1,14 @@
-import {
-  ClassSerializerInterceptor,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Reflector } from '@nestjs/core';
 import { HttpExceptionFilter } from './filter/HttpExceptionFilter';
 import { ValidationError } from 'class-validator';
 import { ValidationException } from './exception/ValidationException';
 import { BankAppResponseInterceptor } from './interceptor/BankAppResponseInterceptor';
+import path from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-export function resetMainAppSetting(app: INestApplication) {
+export function resetMainAppSetting(app: NestExpressApplication) {
   // 1.interceptors
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalInterceptors(new BankAppResponseInterceptor());
@@ -25,6 +23,10 @@ export function resetMainAppSetting(app: INestApplication) {
 
   // 3.route, then
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  // viewEngine Setting
+  app.setBaseViewsDir(path.join(__dirname, 'views'));
+  app.setViewEngine('hbs');
 
   const config = new DocumentBuilder()
     .setTitle('은행 API')
