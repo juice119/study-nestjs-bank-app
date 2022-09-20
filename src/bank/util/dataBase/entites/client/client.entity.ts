@@ -26,23 +26,31 @@ export class Client extends BaseTable {
   })
   description: string;
 
+  @Column({
+    length: 100,
+    nullable: false,
+  })
+  password: string;
+
   @OneToMany(() => Account, (account) => account.client)
   accounts: Account[];
 
   private constructor(
     name: string,
     email: string,
+    password: string,
     description?: string,
     accounts?: Account[],
   ) {
     super();
     this.name = name;
     this.email = email;
+    this.password = password;
     this.description = description;
     this.accounts = accounts;
   }
 
-  static toSignup(name: string, email: string) {
-    return new Client(name, email);
+  static toSignup(name: string, email: string, encryptedPassword: string) {
+    return new Client(name, email, encryptedPassword);
   }
 }

@@ -16,10 +16,11 @@ import { AccountDepositBodyRequest } from '../../../../../../src/bank/module/acc
 import { AccountDepositWithDrawResponse } from '../../../../../../src/bank/module/account/dto/AccountDepositWithDrawResponse';
 import { AccountWithdrawBodyRequest } from '../../../../../../src/bank/module/account/dto/AccountWithdrawBodyRequest';
 import { AccountWithDrawResponse } from '../../../../../../src/bank/module/account/dto/AccountWithdrawResponse';
+import { ClientTestRepository } from '../../testUtil/ClientTestRepository';
 
 describe('계좌 API SUPER 테스트', () => {
   let app;
-  let clientRepository: Repository<Client>;
+  let clientTestRepository: ClientTestRepository;
   let accountRepository: Repository<Account>;
   let accountStatementRepository: Repository<AccountStatement>;
 
@@ -30,29 +31,30 @@ describe('계좌 API SUPER 테스트', () => {
 
     app = moduleFixture.createNestApplication();
     resetMainAppSetting(app);
-    clientRepository = moduleFixture.get<Repository<Client>>(
+    const clientRepository = moduleFixture.get<Repository<Client>>(
       getRepositoryToken(Client),
     );
+    clientTestRepository = new ClientTestRepository(clientRepository);
     accountRepository = moduleFixture.get(getRepositoryToken(Account));
     accountStatementRepository = moduleFixture.get(
       getRepositoryToken(AccountStatement),
     );
 
-    await clientRepository.clear();
+    await clientTestRepository.clear();
     await accountRepository.clear();
     await accountStatementRepository.clear();
     await app.init();
   });
 
   beforeEach(async () => {
-    await clientRepository.clear();
+    await clientTestRepository.clear();
     await accountRepository.clear();
     await accountStatementRepository.clear();
   });
 
   describe('[POST][account/create] 계좌 만들기 API', () => {
     beforeEach(async () => {
-      await clientRepository.clear();
+      await clientTestRepository.clear();
       await accountRepository.clear();
       await accountStatementRepository.clear();
     });
@@ -61,9 +63,8 @@ describe('계좌 API SUPER 테스트', () => {
       // given
       const email = 'test@test.com';
       const publishDescription = '월급 통장';
-      const client = await clientRepository.save(
-        Client.toSignup('tester', email),
-      );
+      const client = await clientTestRepository.signUp({ email });
+
       const accountCreateRequest = new AccountCreateRequest(
         email,
         publishDescription,
@@ -111,16 +112,15 @@ describe('계좌 API SUPER 테스트', () => {
 
   describe('[PATCH][:accountId/deposit] 계좌에 금액을 입금할 수 있다.', () => {
     beforeEach(async () => {
-      await clientRepository.clear();
+      await clientTestRepository.clear();
       await accountRepository.clear();
       await accountStatementRepository.clear();
     });
 
     it('입금 할 수 있다.', async () => {
       // given
-      const client = await clientRepository.save(
-        Client.toSignup('tester', 'test@test.com'),
-      );
+      const client = await clientTestRepository.signUp({});
+
       const givenAccount = await accountRepository.save(
         Account.create('테스트', client),
       );
@@ -158,7 +158,7 @@ describe('계좌 API SUPER 테스트', () => {
 
   describe('[PATCH][:accountId/withdraw] 계좌에 금액을 출금 할 수 있다.', () => {
     beforeEach(async () => {
-      await clientRepository.clear();
+      await clientTestRepository.clear();
       await accountRepository.clear();
       await accountStatementRepository.clear();
     });
@@ -167,9 +167,7 @@ describe('계좌 API SUPER 테스트', () => {
       // given
       const withdrawMoney = -3000;
       const nowAccountMount = 10000;
-      const client = await clientRepository.save(
-        Client.toSignup('tester', 'test@test.com'),
-      );
+      const client = await clientTestRepository.signUp({});
       const account = await accountRepository.save(
         Account.create('테스트', client),
       );
@@ -220,9 +218,7 @@ describe('계좌 API SUPER 테스트', () => {
       // given
       const withdrawMoney = -3000;
       const nowAccountMount = 1000;
-      const client = await clientRepository.save(
-        Client.toSignup('tester', 'test@test.com'),
-      );
+      const client = await clientTestRepository.signUp({});
       const account = await accountRepository.save(
         Account.create('테스트', client),
       );

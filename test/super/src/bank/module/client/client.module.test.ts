@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { ClientModule } from '../../../../../../src/bank/module/client/client.module';
 import { ClientSignUpRequest } from '../../../../../../src/bank/module/client/dto/clientSignUpRequest';
 import * as request from 'supertest';
@@ -7,36 +7,43 @@ import { resetMainAppSetting } from '../../../../../../src/bank/resetMainAppSett
 import { ClientSignUpResponse } from '../../../../../../src/bank/module/client/dto/ClientSignUpResponse';
 import { BankAppResponse } from '../../../../../../src/bank/common-dto/BankAppResponse';
 import { getDataBaseConnection } from '../../../../../../src/bank/util/dataBase/dataBaseConnection/getDataBaseConnection';
-import { Repository } from 'typeorm';
 import { Client } from '../../../../../../src/bank/util/dataBase/entites/client/client.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { ClientTestRepository } from '../../testUtil/ClientTestRepository';
 
 describe('Client Module Super Test', () => {
-  let app: INestApplication;
-  let clientRepository: Repository<Client>;
+  let app: NestExpressApplication;
+  let clientTestRepository: ClientTestRepository;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [ClientModule, getDataBaseConnection()],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication<NestExpressApplication>();
     resetMainAppSetting(app);
-    clientRepository = moduleFixture.get(getRepositoryToken(Client));
+    const clientRepository = moduleFixture.get(getRepositoryToken(Client));
+    clientTestRepository = new ClientTestRepository(clientRepository);
     await app.init();
   });
 
-  beforeEach(() => {
-    clientRepository.clear();
-  });
-
   describe('(POST) /client/signup 회원가입', () => {
+    beforeEach(async () => {
+      await clientTestRepository.clear();
+    });
+
     const url = '/client/signup';
     it('고객은 이름, 이메일 입력하여 등록할 수 있다', async () => {
       //given
       const userName = '후추';
       const email = 'peper@test-bank.com';
-      const clientSignUpRequest = new ClientSignUpRequest(userName, email);
+      const password = 'testPassword';
+      const clientSignUpRequest = new ClientSignUpRequest(
+        userName,
+        email,
+        password,
+      );
 
       // when
       const response = await request(app.getHttpServer())
@@ -45,7 +52,7 @@ describe('Client Module Super Test', () => {
       const clientSignUpResponse = ClientSignUpResponse.byObject(
         response.body.data,
       );
-      const insertClient = await clientRepository.findOne({
+      const insertClient = await clientTestRepository.clientRepository.findOne({
         where: { id: clientSignUpResponse.id },
       });
 
@@ -60,8 +67,14 @@ describe('Client Module Super Test', () => {
       //given
       const userName = '후추';
       const email = 'peper@test-bank.com';
-      await clientRepository.save(Client.toSignup('미호', email));
-      const clientSignUpRequest = new ClientSignUpRequest(userName, email);
+      await clientTestRepository.signUp({ email });
+
+      const password = 'testPassword';
+      const clientSignUpRequest = new ClientSignUpRequest(
+        userName,
+        email,
+        password,
+      );
 
       // when
       const response = await request(app.getHttpServer())
@@ -75,11 +88,20 @@ describe('Client Module Super Test', () => {
     });
 
     describe('validation 검사', () => {
+      beforeEach(async () => {
+        await clientTestRepository.clear();
+      });
+
       it('이름은  1 글자 이상을 입력해야 한다.', async () => {
         //given
         const userName = '  ';
         const email = 'peper@test-bank.com';
-        const clientSignUpRequest = new ClientSignUpRequest(userName, email);
+        const password = 'testPassword';
+        const clientSignUpRequest = new ClientSignUpRequest(
+          userName,
+          email,
+          password,
+        );
 
         // when
         const response = await request(app.getHttpServer())
@@ -101,7 +123,12 @@ describe('Client Module Super Test', () => {
         //given
         const userName = '12345678901234567890123456';
         const email = 'peper@test-bank.com';
-        const clientSignUpRequest = new ClientSignUpRequest(userName, email);
+        const password = 'testPassword';
+        const clientSignUpRequest = new ClientSignUpRequest(
+          userName,
+          email,
+          password,
+        );
 
         // when
         const response = await request(app.getHttpServer())
@@ -123,7 +150,12 @@ describe('Client Module Super Test', () => {
         //given
         const userName = '후추';
         const email = 'peper@adasda./casca';
-        const clientSignUpRequest = new ClientSignUpRequest(userName, email);
+        const password = 'testPassword';
+        const clientSignUpRequest = new ClientSignUpRequest(
+          userName,
+          email,
+          password,
+        );
 
         // when
         const response = await request(app.getHttpServer())

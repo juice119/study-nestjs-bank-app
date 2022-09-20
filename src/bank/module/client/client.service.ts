@@ -4,9 +4,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ClientSignUpRequest } from './dto/clientSignUpRequest';
 import { Repository } from 'typeorm';
 import { BankAppHttpException } from '../../exception/BankAppHttpException';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ClientService {
+  private static passwordHashSaltRounds = 10;
+
   constructor(
     @InjectRepository(Client)
     private clientRepository: Repository<Client>,
@@ -19,9 +22,16 @@ export class ClientService {
         '이미 가입한 이메일이 존재합니다.',
       );
     }
+    const encryptPassword = await this.encryptPassword(
+      clientSignUpRequest.password,
+    );
 
     return this.clientRepository.save(
-      Client.toSignup(clientSignUpRequest.name, clientSignUpRequest.email),
+      Client.toSignup(
+        clientSignUpRequest.name,
+        clientSignUpRequest.email,
+        encryptPassword,
+      ),
     );
   }
 
@@ -31,5 +41,13 @@ export class ClientService {
     });
 
     return !!client;
+  }
+  private async encryptPassword(password: string): Promise<string> {
+    try {
+      return bcrypt.hashSync(password, ClientService.passwordHashSaltRounds);
+    } catch (e) {
+      console.error('로그인 실패', e);
+      throw BankAppHttpException.toSystemError();
+    }
   }
 }

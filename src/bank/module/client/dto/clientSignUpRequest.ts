@@ -2,8 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-type keys = keyof ClientSignUpRequest;
-
 export class ClientSignUpRequest {
   @ApiProperty()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
@@ -22,8 +20,16 @@ export class ClientSignUpRequest {
   )
   email: string;
 
-  constructor(name: string, email: string) {
+  @ApiProperty()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @IsString()
+  @MinLength(4, { message: '비밀번호 형식을 확인 해주세요.' })
+  @MaxLength(12, { message: '비밀번호 형식을 확인 해주세요.' })
+  password: string;
+
+  constructor(name: string, email: string, password: string) {
     this.name = name;
     this.email = email;
+    this.password = password;
   }
 }
