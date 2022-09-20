@@ -4,11 +4,20 @@ import { ClientSignUpResponse } from './dto/ClientSignUpResponse';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ClientService } from './client.service';
 import { BankAppHttpException } from '../../exception/BankAppHttpException';
+import { ClientLoginRequest } from './dto/ClientLoginRequest';
+import { ClientLoginResponse } from './dto/ClientLoginResponse';
 
 @ApiTags('client')
 @Controller('/client')
 export class ClientController {
   constructor(private clientService: ClientService) {}
+
+  @Post('/login')
+  @ApiResponse({ type: ClientSignUpResponse })
+  loginClient(@Body() clientLoginRequest: ClientLoginRequest) {
+    // TODO 로그인 서비스 기능 구현
+    return new ClientLoginResponse(123, 'test', 'test@test.com');
+  }
 
   @Post('/signup')
   @ApiResponse({ type: ClientSignUpResponse })
