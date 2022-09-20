@@ -7,8 +7,17 @@ import { ValidationException } from './exception/ValidationException';
 import { BankAppResponseInterceptor } from './interceptor/BankAppResponseInterceptor';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as session from 'express-session';
 
 export function resetMainAppSetting(app: NestExpressApplication) {
+  app.use(
+    session({
+      secret: 'my-secret',
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
+
   // 1.interceptors
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalInterceptors(new BankAppResponseInterceptor());
