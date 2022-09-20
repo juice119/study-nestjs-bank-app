@@ -5,7 +5,7 @@ import { HttpExceptionFilter } from './filter/HttpExceptionFilter';
 import { ValidationError } from 'class-validator';
 import { ValidationException } from './exception/ValidationException';
 import { BankAppResponseInterceptor } from './interceptor/BankAppResponseInterceptor';
-import path from 'path';
+import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 export function resetMainAppSetting(app: NestExpressApplication) {
@@ -25,7 +25,7 @@ export function resetMainAppSetting(app: NestExpressApplication) {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // viewEngine Setting
-  app.setBaseViewsDir(path.join(__dirname, 'views'));
+  app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('hbs');
 
   const config = new DocumentBuilder()
